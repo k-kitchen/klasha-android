@@ -1,0 +1,20 @@
+<resources>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="otp">OTP</string>
+    <string name="log_in">Log in</string>
+    <string name="logo">Logo</string>
+    <string name="number_9"><b>9</b></string>
+    <string name="number_0"><b>0</b></string>
+    <string name="number_7"><b>7</b></string>
+    <string name="number_8"><b>8</b></string>
+    <string name="number_6"><b>6</b></string>
+    <string name="number_4"><b>4</b></string>
+    <string name="number_5"><b>5</b></string>
+    <string name="number_1"><b>1</b></string>
+    <string name="number_2"><b>2</b></string>
+    <string name="number_3"><b>3</b></string>
+    <string name="delete">Delete</string>
+    <string name="pin_prompt"><b>Enter your pin</b></string>
+</resources>

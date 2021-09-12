@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.klasha.android">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name=".ui.WalletLoginActivity"
+            android:label="Wallet Login"
+            android:exported="true"
+            android:theme="@style/Theme.KlashaAndroid"/>
+        <activity
+            android:name=".ui.OtpActivity"
+            android:exported="true"
+            android:label="OTP"
+            android:theme="@style/Theme.KlashaAndroid"/>
+        <activity
+            android:name=".ui.PinActivity"
+            android:exported="true"
+            android:label="Pin"
+            android:theme="@style/Theme.KlashaAndroid"/>
+    </application>
+
+</manifest>
