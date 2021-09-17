@@ -34,4 +34,14 @@ class WalletLoginActivity : AppCompatActivity() {
         }
         finish()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!isLogin){
+            transactionCredentials.login = Login("", "")
+            synchronized(transactionCredentials){
+                transactionCredentials.notify()
+            }
+        }
+    }
 }
