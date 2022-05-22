@@ -17,4 +17,6 @@
     <string name="number_3"><b>3</b></string>
     <string name="delete">Delete</string>
     <string name="pin_prompt"><b>Enter your pin</b></string>
+    <string name="cancel">Cancel</string>
+    <string name="pay_with_klasha">Pay with klasha</string>
 </resources>

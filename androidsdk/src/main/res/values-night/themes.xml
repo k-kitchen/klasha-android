@@ -17,4 +17,9 @@
     </style>
     <color name="card_background">@color/dark_grey</color>
     <color name="edit_text_color">@android:color/white</color>
+
+    <style name="outline_button" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">#C5C7CC</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

@@ -17,12 +17,23 @@ class WalletLoginActivity : AppCompatActivity() {
         binding = ActivityWalletLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val extras = intent.extras
+        if (extras != null){
+            binding.symbol.text = extras.getString("symbol","")
+            binding.amount.text = extras.getDouble("amount",0.0).toString()
+            binding.email.text = extras.getString("email","")
+        }
+
         binding.buttonLogin.setOnClickListener {
             val username = binding.username.text.toString()
             val password = binding.password.text.toString()
 
             val login = Login(username, password)
             submit(login)
+        }
+
+        binding.buttonCancel.setOnClickListener {
+            finish()
         }
     }
 

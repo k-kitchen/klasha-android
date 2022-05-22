@@ -233,7 +233,7 @@ object KlashaSDK {
                 override fun success(response: Response<ExchangeResponse>) {
                     val rate = response.body()!!.rate
 
-                    getWalletCredentials { login ->
+                    getWalletCredentials(charge.amount, country!!.symbol, charge.email) { login ->
                         if (login.username.isEmpty() || login.password.isEmpty()){
                             transactionCallback.error(weakReferenceActivity.get()!!, Error.INVALID_WALLET_LOGIN.name)
                             return@getWalletCredentials
@@ -468,8 +468,11 @@ object KlashaSDK {
         }
     }
 
-    private fun getWalletCredentials(callback: (Login) -> Unit) {
+    private fun getWalletCredentials(amount: Double, symbol: String, email: String, callback: (Login) -> Unit) {
         val intent = Intent(weakReferenceActivity.get(), WalletLoginActivity::class.java)
+        intent.putExtra("amount", amount)
+        intent.putExtra("symbol", symbol)
+        intent.putExtra("email", email)
         weakReferenceActivity.get()!!.startActivity(intent)
 
         thread {

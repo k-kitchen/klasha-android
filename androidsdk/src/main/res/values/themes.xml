@@ -24,6 +24,11 @@
 
     <style name="Theme.KlashaAndroid.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="outline_button" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">#0F172A</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
     <color name="card_background">@color/grey</color>
     <color name="edit_text_color">@android:color/black</color>
 </resources>

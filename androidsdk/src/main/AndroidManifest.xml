@@ -10,17 +10,17 @@
             android:name=".ui.WalletLoginActivity"
             android:label="Wallet Login"
             android:exported="true"
-            android:theme="@style/Theme.KlashaAndroid"/>
+            android:theme="@style/Theme.KlashaAndroid.NoActionBar"/>
         <activity
             android:name=".ui.OtpActivity"
             android:exported="true"
             android:label="OTP"
-            android:theme="@style/Theme.KlashaAndroid"/>
+            android:theme="@style/Theme.KlashaAndroid.NoActionBar"/>
         <activity
             android:name=".ui.PinActivity"
             android:exported="true"
             android:label="Pin"
-            android:theme="@style/Theme.KlashaAndroid"/>
+            android:theme="@style/Theme.KlashaAndroid.NoActionBar"/>
     </application>
 
 </manifest>

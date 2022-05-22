@@ -7,6 +7,19 @@
     tools:context=".ui.WalletLoginActivity">
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonCancel"
+        style="@style/outline_button"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="14dp"
+        android:text="@string/cancel"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/buttonLogin"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogin" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonLogin"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"
@@ -14,7 +27,8 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:text="@string/login"
+        android:text="@string/pay_with_klasha"
+        android:textAllCaps="false"
         android:textColor="@android:color/white"
         app:backgroundTint="@color/primary_500"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +40,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="80dp"
         app:boxCornerRadiusBottomEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
@@ -37,7 +51,7 @@
         app:hintTextColor="@color/primary_500"
         app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
         app:layout_constraintStart_toStartOf="@+id/buttonLogin"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintTop_toBottomOf="@+id/amountLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
@@ -72,17 +86,65 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/textView2"
-        style="@style/TextAppearance.AppCompat.Small"
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/log_in"
-        android:textColor="@color/edit_text_color"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
         app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/klasha" />
+
+    <TextView
+        android:id="@+id/email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="example@klasha.com"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toTopOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="54dp"
+        android:text="Pay"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <LinearLayout
+        android:id="@+id/amountLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+        <TextView
+            android:id="@+id/symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₦"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="4dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3,500.00"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
