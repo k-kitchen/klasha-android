@@ -1,17 +1,22 @@
 package com.klasha.android.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.KeyEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.klasha.android.databinding.ActivityOtpBinding
 
 internal class OtpActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOtpBinding
+
     private var otp: String = ""
     private var isOtp: Boolean = false
 
     private var transactionCredentials: TransactionCredentials = TransactionCredentials.getInstance()
+    private lateinit var imm: InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,63 +24,74 @@ internal class OtpActivity : AppCompatActivity() {
         binding = ActivityOtpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        actionBar?.title = "OTP"
-
         val message = intent.getStringExtra("message")
+        val email = intent.getStringExtra("email")
         binding.otpMessage.text = SpannableStringBuilder(message)
+        binding.tvEmail.text = SpannableStringBuilder(email)
 
-        binding.button0.setOnClickListener {
-            buttonAction('0')
-        }
-        binding.button1.setOnClickListener {
-            buttonAction('1')
-        }
-        binding.button2.setOnClickListener {
-            buttonAction('2')
-        }
-        binding.button3.setOnClickListener {
-            buttonAction('3')
-        }
-        binding.button4.setOnClickListener {
-            buttonAction('4')
-        }
-        binding.button5.setOnClickListener {
-            buttonAction('5')
-        }
-        binding.button6.setOnClickListener {
-            buttonAction('6')
-        }
-        binding.button7.setOnClickListener {
-            buttonAction('7')
-        }
-        binding.button8.setOnClickListener {
-            buttonAction('8')
-        }
-        binding.button9.setOnClickListener {
-            buttonAction('9')
-        }
-        binding.buttonBack.setOnClickListener {
-            val length = otp.length
-            if (length > 0){
-                otp = otp.slice(0 until length - 1)
-                fillOtpSpace()
-            }else{
-                return@setOnClickListener
+        binding.pinChar0.setOnClickListener { otpTextInputFocus() }
+
+        binding.pinChar1.setOnClickListener { otpTextInputFocus() }
+
+        binding.pinChar2.setOnClickListener { otpTextInputFocus() }
+
+        binding.pinChar3.setOnClickListener { otpTextInputFocus() }
+
+        binding.pinChar4.setOnClickListener { otpTextInputFocus() }
+
+        binding.pinChar5.setOnClickListener { otpTextInputFocus() }
+
+        binding.otpTextInput.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN){
+                when (keyCode) {
+                    KeyEvent.KEYCODE_0 -> keyDown('0')
+                    KeyEvent.KEYCODE_1 -> keyDown('1')
+                    KeyEvent.KEYCODE_2 -> keyDown('2')
+                    KeyEvent.KEYCODE_3 -> keyDown('3')
+                    KeyEvent.KEYCODE_4 -> keyDown('4')
+                    KeyEvent.KEYCODE_5 -> keyDown('5')
+                    KeyEvent.KEYCODE_6 -> keyDown('6')
+                    KeyEvent.KEYCODE_7 -> keyDown('7')
+                    KeyEvent.KEYCODE_8 -> keyDown('8')
+                    KeyEvent.KEYCODE_9 -> keyDown('9')
+                    else -> backKeyDown()
+                }
             }
+            false
         }
+    }
 
-        binding.buttonOk.setOnClickListener {
+    private fun otpTextInputFocus(){
+        binding.otpTextInput.requestFocus()
+        imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(binding.otpTextInput, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun keyDown(partPin: Char){
+        otp += partPin
+        if (otp.length<6){
+            fillOtpSpace()
+        }else if (otp.length == 6){
+            fillOtpSpace()
             submit()
         }
     }
 
-    private fun buttonAction(partOtp: Char){
-        otp += partOtp
-        fillOtpSpace()
+    private fun backKeyDown(){
+        val length = otp.length
+        if (length > 0){
+            otp = otp.slice(0 until length - 1)
+            fillOtpSpace()
+        }
     }
 
     private fun fillOtpSpace(){
-        binding.otpEditText.text = SpannableStringBuilder(otp)
+        binding.pinChar0.text = SpannableStringBuilder((otp.getOrNull(0)?:"").toString())
+        binding.pinChar1.text = SpannableStringBuilder((otp.getOrNull(1)?:"").toString())
+        binding.pinChar2.text = SpannableStringBuilder((otp.getOrNull(2)?:"").toString())
+        binding.pinChar3.text = SpannableStringBuilder((otp.getOrNull(3)?:"").toString())
+        binding.pinChar4.text = SpannableStringBuilder((otp.getOrNull(4)?:"").toString())
+        binding.pinChar5.text = SpannableStringBuilder((otp.getOrNull(5)?:"").toString())
     }
 
     private fun submit(){
@@ -95,5 +111,6 @@ internal class OtpActivity : AppCompatActivity() {
                 transactionCredentials.notify()
             }
         }
+        imm.hideSoftInputFromWindow(binding.otpTextInput.windowToken, 0)
     }
 }

@@ -24,6 +24,9 @@ internal class PinActivity : AppCompatActivity() {
         binding = ActivityPinBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val email = intent.getStringExtra("email")
+        binding.tvEmail.text = SpannableStringBuilder(email)
+
         binding.pinChar0.setOnClickListener {
             textInputFocus()
         }
@@ -63,7 +66,7 @@ internal class PinActivity : AppCompatActivity() {
     private fun textInputFocus(){
         binding.textInput.requestFocus()
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.textInput, InputMethodManager.SHOW_FORCED)
+        imm.showSoftInput(binding.textInput, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun keyDown(partPin: Char){

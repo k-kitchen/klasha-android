@@ -71,6 +71,7 @@ internal class Klasha(
     }
 
     fun sendCardPayment(
+        email: String,
         sendCardPaymentRequest: SendCardPaymentRequest,
         destinationCurrency: Currency,
         sendCardPaymentCallback: SendCardPaymentCallback

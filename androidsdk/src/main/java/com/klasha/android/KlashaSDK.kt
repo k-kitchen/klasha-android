@@ -72,7 +72,7 @@ object KlashaSDK {
                         charge.transactionReference, charge.phone,
                         charge.email, charge.fullName
                     )
-                    sendCardPayment(sendCardRequest, transactionCallback)
+                    sendCardPayment(charge.email, sendCardRequest, transactionCallback)
                 }
 
                 override fun error(message: String) {
@@ -254,10 +254,11 @@ object KlashaSDK {
 
 
     private fun sendCardPayment(
+        email: String,
         sendCardRequest: SendCardPaymentRequest,
         transactionCallback: TransactionCallback
     ) {
-        instance?.sendCardPayment(sendCardRequest, country!!.currency, object :
+        instance?.sendCardPayment(email, sendCardRequest, country!!.currency, object :
             Klasha.SendCardPaymentCallback {
             override fun success(response: Response<SendCardPaymentResponse>) {
                 if (response.isSuccessful) {
@@ -268,7 +269,7 @@ object KlashaSDK {
                         )
                         return
                     }
-                    getPin { pin ->
+                    getPin(email) { pin ->
                         if (pin.isEmpty() || pin.length < 4) {
                             transactionCallback.error(weakReferenceActivity.get()!!, Error.INVALID_CARD_PIN.name)
                             return@getPin
@@ -278,6 +279,7 @@ object KlashaSDK {
                                 pin, response.body()!!.txRef
                             )
                             chargeCard(
+                                email,
                                 chargeCardRequest,
                                 transactionCallback
                             )
@@ -295,6 +297,7 @@ object KlashaSDK {
     }
 
     private fun chargeCard(
+        email: String,
         chargeCardRequest: ChargeCardRequest,
         transactionCallback: TransactionCallback
     ) {
@@ -309,7 +312,7 @@ object KlashaSDK {
                         )
                         return
                     }
-                    getOtp(response.body()!!.message) { otp ->
+                    getOtp(email, response.body()!!.message) { otp ->
                         if (otp.isEmpty() || otp.length < 4) {
                             transactionCallback.error(weakReferenceActivity.get()!!, Error.INVALID_OTP.name)
                             return@getOtp
@@ -437,8 +440,9 @@ object KlashaSDK {
         return isInitialized
     }
 
-    private fun getPin(callback: (String) -> Unit) {
+    private fun getPin(email: String, callback: (String) -> Unit) {
         val intent = Intent(weakReferenceActivity.get(), PinActivity::class.java)
+        intent.putExtra("email", email)
         weakReferenceActivity.get()!!.startActivity(intent)
 
         thread {
@@ -452,9 +456,10 @@ object KlashaSDK {
         }
     }
 
-    private fun getOtp(message: String, callback: (String) -> Unit) {
+    private fun getOtp(email: String, message: String, callback: (String) -> Unit) {
         val intent = Intent(weakReferenceActivity.get(), OtpActivity::class.java)
         intent.putExtra("message", message)
+        intent.putExtra("email", email)
         weakReferenceActivity.get()!!.startActivity(intent)
 
         thread {
