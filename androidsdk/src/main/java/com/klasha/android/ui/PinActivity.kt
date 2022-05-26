@@ -1,7 +1,10 @@
 package com.klasha.android.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.KeyEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.klasha.android.databinding.ActivityPinBinding
 
@@ -13,6 +16,7 @@ internal class PinActivity : AppCompatActivity() {
     private var isPin: Boolean = false
 
     private var transactionCredentials: TransactionCredentials = TransactionCredentials.getInstance()
+    private lateinit var imm: InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,55 +24,63 @@ internal class PinActivity : AppCompatActivity() {
         binding = ActivityPinBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.pinChar0.setOnClickListener {
+            textInputFocus()
+        }
 
-        binding.button0.setOnClickListener {
-            buttonAction('0')
+        binding.pinChar1.setOnClickListener {
+            textInputFocus()
         }
-        binding.button1.setOnClickListener {
-            buttonAction('1')
+
+        binding.pinChar2.setOnClickListener {
+            textInputFocus()
         }
-        binding.button2.setOnClickListener {
-            buttonAction('2')
+
+        binding.pinChar3.setOnClickListener {
+            textInputFocus()
         }
-        binding.button3.setOnClickListener {
-            buttonAction('3')
-        }
-        binding.button4.setOnClickListener {
-            buttonAction('4')
-        }
-        binding.button5.setOnClickListener {
-            buttonAction('5')
-        }
-        binding.button6.setOnClickListener {
-            buttonAction('6')
-        }
-        binding.button7.setOnClickListener {
-            buttonAction('7')
-        }
-        binding.button8.setOnClickListener {
-            buttonAction('8')
-        }
-        binding.button9.setOnClickListener {
-            buttonAction('9')
-        }
-        binding.buttonBack.setOnClickListener {
-            val length = pin.length
-            if (length > 0){
-                pin = pin.slice(0 until length - 1)
-                fillPinSpaces()
-            }else{
-                return@setOnClickListener
+
+        binding.textInput.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN){
+                when (keyCode) {
+                    KeyEvent.KEYCODE_0 -> keyDown('0')
+                    KeyEvent.KEYCODE_1 -> keyDown('1')
+                    KeyEvent.KEYCODE_2 -> keyDown('2')
+                    KeyEvent.KEYCODE_3 -> keyDown('3')
+                    KeyEvent.KEYCODE_4 -> keyDown('4')
+                    KeyEvent.KEYCODE_5 -> keyDown('5')
+                    KeyEvent.KEYCODE_6 -> keyDown('6')
+                    KeyEvent.KEYCODE_7 -> keyDown('7')
+                    KeyEvent.KEYCODE_8 -> keyDown('8')
+                    KeyEvent.KEYCODE_9 -> keyDown('9')
+                    else -> backKeyDown()
+                }
             }
+            false
         }
     }
 
-    private fun buttonAction(partPin: Char){
+    private fun textInputFocus(){
+        binding.textInput.requestFocus()
+        imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(binding.textInput, InputMethodManager.SHOW_FORCED)
+    }
+
+    private fun keyDown(partPin: Char){
         pin += partPin
         if (pin.length<4){
             fillPinSpaces()
         }else if (pin.length == 4){
             fillPinSpaces()
             submit()
+        }
+    }
+
+    private fun backKeyDown(){
+        val length = pin.length
+        if (length > 0){
+            pin = pin.slice(0 until length - 1)
+            fillPinSpaces()
         }
     }
 
@@ -96,5 +108,6 @@ internal class PinActivity : AppCompatActivity() {
                 transactionCredentials.notify()
             }
         }
+        imm.hideSoftInputFromWindow(binding.textInput.windowToken, 0)
     }
 }

@@ -7,4 +7,5 @@
     <color name="secondary_700">#CCCCCC</color>
     <color name="grey">#F7F7F7</color>
     <color name="dark_grey">#646464</color>
+    <color name="light_grey">#F8F8F8</color>
 </resources>
