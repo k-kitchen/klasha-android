@@ -258,28 +258,6 @@ internal class Klasha(
             })
     }
 
-    fun getBankCodes(bankCodeCallback: BankCodeCallback){
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .getBankCodes()
-            .enqueue(object: Callback<ArrayList<BankCodeResponse>>{
-                override fun onResponse(
-                    call: Call<ArrayList<BankCodeResponse>>,
-                    response: Response<ArrayList<BankCodeResponse>>
-                ) {
-                    if (response.isSuccessful){
-                        bankCodeCallback.success(response)
-                    }else{
-                        bankCodeCallback.error(Error.SERVER_ERROR.name)
-                    }
-                }
-
-                override fun onFailure(call: Call<ArrayList<BankCodeResponse>>, t: Throwable) {
-                    val message = parseError(t)
-                    bankCodeCallback.error(message)
-                }
-            })
-    }
-
     fun ussd(ussdRequest: USSDRequest,destinationCurrency: Currency, ussdCallback: USSDCallback){
         ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
             .ussd(ussdRequest, destinationCurrency)
@@ -298,6 +276,50 @@ internal class Klasha(
                 override fun onFailure(call: Call<USSDResponse>, t: Throwable) {
                     val message = parseError(t)
                     ussdCallback.error(message)
+                }
+            })
+    }
+
+    fun baePay(baePayRequest: BaePayRequest, baePayCallback: BaePayCallback){
+        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
+            .baePay(baePayRequest)
+            .enqueue(object: Callback<BaePayResponse>{
+                override fun onResponse(
+                    call: Call<BaePayResponse>,
+                    response: Response<BaePayResponse>
+                ) {
+                    if (response.isSuccessful){
+                        baePayCallback.success(response)
+                    }else{
+                        baePayCallback.error(Error.SERVER_ERROR.name)
+                    }
+                }
+
+                override fun onFailure(call: Call<BaePayResponse>, t: Throwable) {
+                    val message = parseError(t)
+                    baePayCallback.error(message)
+                }
+            })
+    }
+
+    fun getBankCodes(bankCodeCallback: BankCodeCallback){
+        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
+            .getBankCodes()
+            .enqueue(object: Callback<ArrayList<BankCodeResponse>>{
+                override fun onResponse(
+                    call: Call<ArrayList<BankCodeResponse>>,
+                    response: Response<ArrayList<BankCodeResponse>>
+                ) {
+                    if (response.isSuccessful){
+                        bankCodeCallback.success(response)
+                    }else{
+                        bankCodeCallback.error(Error.SERVER_ERROR.name)
+                    }
+                }
+
+                override fun onFailure(call: Call<ArrayList<BankCodeResponse>>, t: Throwable) {
+                    val message = parseError(t)
+                    bankCodeCallback.error(message)
                 }
             })
     }
@@ -374,5 +396,9 @@ internal class Klasha(
 
     interface USSDCallback: SDKCallback {
         fun success(response: Response<USSDResponse>)
+    }
+
+    interface BaePayCallback: SDKCallback {
+        fun success(response: Response<BaePayResponse>)
     }
 }

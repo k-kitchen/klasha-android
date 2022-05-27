@@ -16,12 +16,22 @@ data class MobileMoney(
     val network: Network
 )
 
+data class BaePay(
+    val medium: BaePayMedium,
+    val bae: String, // The name of the person requesting for money
+    val name: String, // The name of the person the request is being sent to
+    val description: String,
+    val baeEmail: String? = null,
+    val phoneNumber: String? = null
+)
+
 data class Charge (
     val amount: Double,
     val email: String,
     val fullName: String,
     val card: Card?,
     val mobileMoney: MobileMoney? = null,
+    val baePay: BaePay? = null,
     val phone: String = "",
     val accountBank: String = "",
     val transactionReference: String = UUID.randomUUID().toString())
@@ -321,4 +331,8 @@ enum class Country(val countryCode: CountryCode, val currency: Currency, val sym
     YEMEN (CountryCode.YE, Currency.YER, "﷼"),
     ZAMBIA (CountryCode.ZM, Currency.ZMK, "ZK"),
     ZIMBABWE (CountryCode.ZW, Currency.ZWD, "Z$")
+}
+
+enum class BaePayMedium(val value: String){
+    EMAIL("email"), NUMBER("number")
 }

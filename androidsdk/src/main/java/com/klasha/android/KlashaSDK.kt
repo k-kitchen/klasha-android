@@ -280,6 +280,30 @@ object KlashaSDK {
         })
     }
 
+    fun baePay(charge: Charge, transactionCallback: BaePayCallback){
+        val baePayRequest = BaePayRequest(
+            charge.amount,
+            charge.baePay!!.description,
+            charge.baePay.name,
+            country!!.currency,
+            charge.baePay.bae,
+            charge.baePay.phoneNumber?:"",
+            charge.baePay.medium.value,
+            charge.email?:"",
+            charge.baePay.baeEmail!!
+        )
+        instance?.baePay(baePayRequest, object : Klasha.BaePayCallback{
+            override fun success(response: Response<BaePayResponse>) {
+                transactionCallback.success(weakReferenceActivity.get()!!, response.body()!!.message)
+            }
+
+            override fun error(message: String) {
+                transactionCallback.error(weakReferenceActivity.get()!!, message)
+            }
+
+        })
+    }
+
     private fun sendCardPayment(
         email: String,
         sendCardRequest: SendCardPaymentRequest,
@@ -534,7 +558,12 @@ object KlashaSDK {
     interface BankCodeCallback: Callback {
         fun success(ctx: Activity, bankTransferResponse: ArrayList<BankCodeResponse>)
     }
+
     interface USSDCallback: Callback {
         fun success(ctx: Activity, ussdResponse: USSDResponse)
+    }
+
+    interface BaePayCallback: Callback {
+        fun success(ctx: Activity, baePayResponse: String)
     }
 }

@@ -276,3 +276,8 @@ internal data class MPESAResponse(
     )
 }
 
+internal data class BaePayResponse(
+    val message: String,
+    val status: String
+)
+

@@ -57,4 +57,6 @@ internal interface ApiService {
     @POST("pay/{currency}/ussd")
     fun ussd(@Body body: USSDRequest, @Path(value="currency", encoded = true) currency: Currency): Call<USSDResponse>
 
+    @POST("pay/baePay")
+    fun baePay(@Body body: BaePayRequest): Call<BaePayResponse>
 }

@@ -135,3 +135,17 @@ internal data class USSDRequest(
     val currency: Currency,
     val email: String
 )
+
+internal data class BaePayRequest(
+    val amount: Double,
+    val description: String,
+    val name: String,
+    val currency: Currency,
+    val bae: String,
+    @SerializedName("phone_number")
+    val phoneNumber: String,
+    val medium: String,
+    val email: String,
+    val baeEmail: String,
+    val businessId: Int = 5,
+)
