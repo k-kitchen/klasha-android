@@ -208,6 +208,63 @@ KlashaSDK.mpesa(charge, object : KlashaSDK.TransactionCallback{
 
 ```
 
+#### Step 2f: USSD
+```kotlin
+
+val charge = Charge(
+    amount,
+    email,
+    name,
+    null,
+    phone,
+    accountBank // bank code
+)
+
+KlashaSDK.ussd(charge, object : KlashaSDK.USSDCallback{
+    override fun success(ctx: Activity, ussdResponse: USSDResponse) {
+        // Implementation when transaction fails
+        ctx.runOnUiThread {
+            // UI code goes here
+        }
+        // Non UI code can be here    
+    }
+
+    override fun transactionInitiated(transactionReference: String) {
+        // Implementation when transaction fails
+        ctx.runOnUiThread {
+            // UI code goes here
+        }
+        // Non UI code can be here 
+    }
+
+    override fun error(ctx: Activity, message: String) {
+        // Implementation when transaction is initiated
+    }
+})
+
+```
+
+#### Getting bank Codes
+```kotlin
+KlashaSDK.getBankCodes(object : KlashaSDK.BankCodeCallback{
+    override fun success(
+        ctx: Activity,
+        bankTransferResponse: ArrayList<BankCodeResponse>
+    ) {
+        // Implementation
+    }
+
+    override fun transactionInitiated(transactionReference: String) {
+        // Implementation
+    }
+
+    override fun error(ctx: Activity, message: String) {
+        // Implementation
+    }
+
+})
+```
+
 ### Importing the library
 
 1. Add https://jitpack.io to settings.gradle file
