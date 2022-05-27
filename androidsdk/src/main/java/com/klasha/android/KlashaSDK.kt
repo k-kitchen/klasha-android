@@ -253,6 +253,32 @@ object KlashaSDK {
             })
     }
 
+    fun getBankCodes(transactionCallback: BankCodeCallback){
+        instance?.getBankCodes(object : Klasha.BankCodeCallback{
+
+            override fun success(response: Response<ArrayList<BankCodeResponse>>) {
+                transactionCallback.success(weakReferenceActivity.get()!!, response.body()!!)
+            }
+
+            override fun error(message: String) {
+                transactionCallback.error(weakReferenceActivity.get()!!, message)
+            }
+        })
+    }
+
+    fun ussd(charge: Charge, transactionCallback: USSDCallback){
+        val ussdRequest = USSDRequest(charge.transactionReference, charge.accountBank, charge.amount, this.sourceCurrency!!, charge.email)
+        instance?.ussd(ussdRequest, this.country!!.currency, object : Klasha.USSDCallback{
+            override fun success(response: Response<USSDResponse>) {
+                transactionCallback.success(weakReferenceActivity.get()!!, response.body()!!)
+            }
+
+            override fun error(message: String) {
+                transactionCallback.error(weakReferenceActivity.get()!!, message)
+            }
+
+        })
+    }
 
     private fun sendCardPayment(
         email: String,
@@ -508,22 +534,7 @@ object KlashaSDK {
     interface BankCodeCallback: Callback {
         fun success(ctx: Activity, bankTransferResponse: ArrayList<BankCodeResponse>)
     }
-
-    fun getBankCodes(transactionCallback: BankCodeCallback){
-        instance?.getBankCodes(object : BankCodeCallback{
-            override fun success(ctx: Activity, bankCodeResponse: ArrayList<BankCodeResponse>) {
-                transactionCallback.success(weakReferenceActivity.get()!!, bankCodeResponse)
-            }
-
-            override fun transactionInitiated(transactionReference: String) {
-                return
-            }
-
-            override fun error(ctx: Activity, message: String) {
-                transactionCallback.error(weakReferenceActivity.get()!!, message)
-            }
-
-
-        })
+    interface USSDCallback: Callback {
+        fun success(ctx: Activity, ussdResponse: USSDResponse)
     }
 }

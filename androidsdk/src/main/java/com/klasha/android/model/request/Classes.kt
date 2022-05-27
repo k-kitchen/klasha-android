@@ -125,3 +125,13 @@ internal data class MPESARequest(
     val transactionReference: String,
     val option: MPESAOption,
 )
+
+internal data class USSDRequest(
+    @SerializedName("tx_ref")
+    val transactionReference: String,
+    @SerializedName("account_bank")
+    val accountBank: String,
+    val amount: Double,
+    val currency: Currency,
+    val email: String
+)

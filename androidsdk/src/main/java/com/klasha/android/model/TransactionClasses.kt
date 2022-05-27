@@ -23,6 +23,7 @@ data class Charge (
     val card: Card?,
     val mobileMoney: MobileMoney? = null,
     val phone: String = "",
+    val accountBank: String = "",
     val transactionReference: String = UUID.randomUUID().toString())
 
 data class BankTransferResp(
@@ -40,6 +41,35 @@ data class BankTransferResp(
     val transferAmount: Double,
     val mode: String
 )
+
+data class BankCodeResponse(
+    val id: Double,
+    val code: String,
+    val name: String,
+    val imageUrl: String
+)
+
+data class USSDResponse(
+    val status: String,
+    val message: String,
+    val data: Data,
+    val meta: Meta
+){
+    data class Meta(val authorization: Authorization)
+
+    data class Data(
+        val id: Double,
+        val amount: Double,
+        @SerializedName("charged_amount")
+        val chargedAmount: Double,
+        @SerializedName("app_fee")
+        val appFee: Double,
+        val status: String,
+        @SerializedName("fraud_status")
+        val fraudStatus: String)
+
+    data class Authorization(val mode: String, val note: String)
+}
 
 enum class Currency {
     AFN, ALL, DZD, AOA, ARS, AMD, AWG, AZM, BSD, BHD, BDT, BBD, BYR, BZD, BMD, BAM, BWP, BRL, BGN,

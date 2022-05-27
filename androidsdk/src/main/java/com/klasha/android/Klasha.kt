@@ -1,8 +1,10 @@
 package com.klasha.android
 
 import android.app.Activity
+import com.klasha.android.model.BankCodeResponse
 import com.klasha.android.model.Currency
 import com.klasha.android.model.Error
+import com.klasha.android.model.USSDResponse
 import com.klasha.android.model.request.*
 import com.klasha.android.model.response.*
 import com.klasha.android.service.ApiFactory
@@ -256,7 +258,7 @@ internal class Klasha(
             })
     }
 
-    fun getBankCodes(bankCodeCallback: KlashaSDK.BankCodeCallback){
+    fun getBankCodes(bankCodeCallback: BankCodeCallback){
         ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
             .getBankCodes()
             .enqueue(object: Callback<ArrayList<BankCodeResponse>>{
@@ -265,15 +267,37 @@ internal class Klasha(
                     response: Response<ArrayList<BankCodeResponse>>
                 ) {
                     if (response.isSuccessful){
-                        bankCodeCallback.success(weakReferenceActivity.get()!!, response.body()!!)
+                        bankCodeCallback.success(response)
                     }else{
-                        bankCodeCallback.error(weakReferenceActivity.get()!!,Error.SERVER_ERROR.name)
+                        bankCodeCallback.error(Error.SERVER_ERROR.name)
                     }
                 }
 
                 override fun onFailure(call: Call<ArrayList<BankCodeResponse>>, t: Throwable) {
                     val message = parseError(t)
-                    bankCodeCallback.error(weakReferenceActivity.get()!!,message)
+                    bankCodeCallback.error(message)
+                }
+            })
+    }
+
+    fun ussd(ussdRequest: USSDRequest,destinationCurrency: Currency, ussdCallback: USSDCallback){
+        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
+            .ussd(ussdRequest, destinationCurrency)
+            .enqueue(object: Callback<USSDResponse>{
+                override fun onResponse(
+                    call: Call<USSDResponse>,
+                    response: Response<USSDResponse>
+                ) {
+                    if (response.isSuccessful){
+                        ussdCallback.success(response)
+                    }else{
+                        ussdCallback.error(Error.SERVER_ERROR.name)
+                    }
+                }
+
+                override fun onFailure(call: Call<USSDResponse>, t: Throwable) {
+                    val message = parseError(t)
+                    ussdCallback.error(message)
                 }
             })
     }
@@ -346,5 +370,9 @@ internal class Klasha(
 
     interface BankCodeCallback: SDKCallback {
         fun success(response: Response<ArrayList<BankCodeResponse>>)
+    }
+
+    interface USSDCallback: SDKCallback {
+        fun success(response: Response<USSDResponse>)
     }
 }

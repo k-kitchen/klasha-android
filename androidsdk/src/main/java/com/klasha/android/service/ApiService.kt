@@ -1,6 +1,8 @@
 package com.klasha.android.service
 
+import com.klasha.android.model.BankCodeResponse
 import com.klasha.android.model.Currency
+import com.klasha.android.model.USSDResponse
 import com.klasha.android.model.request.*
 import com.klasha.android.model.request.BankTransferRequest
 import com.klasha.android.model.request.ChargeCardRequest
@@ -51,4 +53,8 @@ internal interface ApiService {
 
     @GET("pay/aggregators/banks/codes")
     fun getBankCodes(): Call<ArrayList<BankCodeResponse>>
+
+    @POST("pay/{currency}/ussd")
+    fun ussd(@Body body: USSDRequest, @Path(value="currency", encoded = true) currency: Currency): Call<USSDResponse>
+
 }
