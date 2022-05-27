@@ -256,6 +256,28 @@ internal class Klasha(
             })
     }
 
+    fun getBankCodes(bankCodeCallback: KlashaSDK.BankCodeCallback){
+        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
+            .getBankCodes()
+            .enqueue(object: Callback<ArrayList<BankCodeResponse>>{
+                override fun onResponse(
+                    call: Call<ArrayList<BankCodeResponse>>,
+                    response: Response<ArrayList<BankCodeResponse>>
+                ) {
+                    if (response.isSuccessful){
+                        bankCodeCallback.success(weakReferenceActivity.get()!!, response.body()!!)
+                    }else{
+                        bankCodeCallback.error(weakReferenceActivity.get()!!,Error.SERVER_ERROR.name)
+                    }
+                }
+
+                override fun onFailure(call: Call<ArrayList<BankCodeResponse>>, t: Throwable) {
+                    val message = parseError(t)
+                    bankCodeCallback.error(weakReferenceActivity.get()!!,message)
+                }
+            })
+    }
+
     private fun parseError(t: Throwable): String {
         return when (t) {
             is HttpException -> {
@@ -320,5 +342,9 @@ internal class Klasha(
 
     interface WalletPaymentCallback: SDKCallback {
         fun success(response: Response<MakeWalletPaymentResponse>)
+    }
+
+    interface BankCodeCallback: SDKCallback {
+        fun success(response: Response<ArrayList<BankCodeResponse>>)
     }
 }

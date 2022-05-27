@@ -16,7 +16,7 @@ internal class OtpActivity : AppCompatActivity() {
     private var isOtp: Boolean = false
 
     private var transactionCredentials: TransactionCredentials = TransactionCredentials.getInstance()
-    private lateinit var imm: InputMethodManager
+    private var imm: InputMethodManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +64,7 @@ internal class OtpActivity : AppCompatActivity() {
     private fun otpTextInputFocus(){
         binding.otpTextInput.requestFocus()
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.otpTextInput, InputMethodManager.SHOW_IMPLICIT)
+        imm!!.showSoftInput(binding.otpTextInput, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun keyDown(partPin: Char){
@@ -111,6 +111,6 @@ internal class OtpActivity : AppCompatActivity() {
                 transactionCredentials.notify()
             }
         }
-        imm.hideSoftInputFromWindow(binding.otpTextInput.windowToken, 0)
+        imm?.hideSoftInputFromWindow(binding.otpTextInput.windowToken, 0)
     }
 }

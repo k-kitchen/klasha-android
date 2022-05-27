@@ -16,6 +16,7 @@ import com.klasha.android.model.response.ValidatePaymentResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -47,4 +48,7 @@ internal interface ApiService {
 
     @POST("pay/{currency}/cardpayment")
     fun mpesa(@Body body: MPESARequest, @Path(value="currency", encoded = true) currency: Currency): Call<MPESAResponse>
+
+    @GET("pay/aggregators/banks/codes")
+    fun getBankCodes(): Call<ArrayList<BankCodeResponse>>
 }

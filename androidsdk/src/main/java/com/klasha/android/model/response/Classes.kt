@@ -275,3 +275,10 @@ internal data class MPESAResponse(
         val createdAt: String
     )
 }
+
+data class BankCodeResponse(
+    val id: Double,
+    val code: String,
+    val name: String,
+    val imageUrl: String
+)

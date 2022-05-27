@@ -24,7 +24,6 @@ internal object ApiFactory {
                 val inComing = chain.request()
                 val outGoing = inComing.newBuilder()
                     .header("x-auth-token", token)
-                    .header("Content-Length", inComing.body()?.contentLength().toString())
                     .method(inComing.method(), inComing.body())
                     .build()
                 chain.proceed(outGoing)

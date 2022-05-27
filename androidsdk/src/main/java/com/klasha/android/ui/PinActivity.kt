@@ -16,7 +16,7 @@ internal class PinActivity : AppCompatActivity() {
     private var isPin: Boolean = false
 
     private var transactionCredentials: TransactionCredentials = TransactionCredentials.getInstance()
-    private lateinit var imm: InputMethodManager
+    private var imm: InputMethodManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +66,7 @@ internal class PinActivity : AppCompatActivity() {
     private fun textInputFocus(){
         binding.textInput.requestFocus()
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.textInput, InputMethodManager.SHOW_IMPLICIT)
+        imm!!.showSoftInput(binding.textInput, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun keyDown(partPin: Char){
@@ -111,6 +111,6 @@ internal class PinActivity : AppCompatActivity() {
                 transactionCredentials.notify()
             }
         }
-        imm.hideSoftInputFromWindow(binding.textInput.windowToken, 0)
+        imm?.hideSoftInputFromWindow(binding.textInput.windowToken, 0)
     }
 }

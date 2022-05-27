@@ -8,6 +8,7 @@ import com.klasha.android.model.response.*
 import com.klasha.android.ui.*
 import retrofit2.Response
 import java.lang.ref.WeakReference
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 
@@ -504,4 +505,25 @@ object KlashaSDK {
         fun success(ctx: Activity, bankTransferResponse: BankTransferResp)
     }
 
+    interface BankCodeCallback: Callback {
+        fun success(ctx: Activity, bankTransferResponse: ArrayList<BankCodeResponse>)
+    }
+
+    fun getBankCodes(transactionCallback: BankCodeCallback){
+        instance?.getBankCodes(object : BankCodeCallback{
+            override fun success(ctx: Activity, bankCodeResponse: ArrayList<BankCodeResponse>) {
+                transactionCallback.success(weakReferenceActivity.get()!!, bankCodeResponse)
+            }
+
+            override fun transactionInitiated(transactionReference: String) {
+                return
+            }
+
+            override fun error(ctx: Activity, message: String) {
+                transactionCallback.error(weakReferenceActivity.get()!!, message)
+            }
+
+
+        })
+    }
 }
