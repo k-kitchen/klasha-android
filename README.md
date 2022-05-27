@@ -72,6 +72,7 @@ val charge = Charge(
     email,
     name,
     null
+    null
 )
 
 KlashaSDK.bankTransfer(charge, object : KlashaSDK.BankTransferTransactionCallback{
@@ -105,6 +106,7 @@ val charge = Charge(
     amount,
     email,
     name,
+    null
     null
 )
 
@@ -144,6 +146,7 @@ val charge = Charge(
     amount,
     email,
     name,
+    null,
     null,
     mobileMoney
 )
@@ -215,6 +218,7 @@ val charge = Charge(
     amount,
     email,
     name,
+    null,
     null,
     phone,
     accountBank // bank code

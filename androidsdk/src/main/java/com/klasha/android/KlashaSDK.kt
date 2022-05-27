@@ -181,11 +181,11 @@ object KlashaSDK {
         1. Send Transaction details
          */
 
-        if (!isInitialized) {
-            transactionCallback.error(
-                weakReferenceActivity.get()!!,
-                "SDK Not Initialized"
-            )
+        if (!checkSdkInitialised(weakReferenceActivity.get()!!, transactionCallback)) {
+            return
+        }
+
+        if (!checkValidAmount(charge.amount, transactionCallback)) {
             return
         }
 
@@ -221,11 +221,11 @@ object KlashaSDK {
         3. Charge from wallet
         */
 
-        if (!isInitialized) {
-            transactionCallback.error(
-                weakReferenceActivity.get()!!,
-                "SDK Not Initialized"
-            )
+        if (!checkSdkInitialised(weakReferenceActivity.get()!!, transactionCallback)) {
+            return
+        }
+
+        if (!checkValidAmount(charge.amount, transactionCallback)) {
             return
         }
 
@@ -254,6 +254,10 @@ object KlashaSDK {
     }
 
     fun getBankCodes(transactionCallback: BankCodeCallback){
+        if (!checkSdkInitialised(weakReferenceActivity.get()!!, transactionCallback)) {
+            return
+        }
+
         instance?.getBankCodes(object : Klasha.BankCodeCallback{
 
             override fun success(response: Response<ArrayList<BankCodeResponse>>) {
@@ -267,6 +271,14 @@ object KlashaSDK {
     }
 
     fun ussd(charge: Charge, transactionCallback: USSDCallback){
+        if (!checkSdkInitialised(weakReferenceActivity.get()!!, transactionCallback)) {
+            return
+        }
+
+        if (!checkValidAmount(charge.amount, transactionCallback)) {
+            return
+        }
+
         val ussdRequest = USSDRequest(charge.transactionReference, charge.accountBank, charge.amount, this.sourceCurrency!!, charge.email)
         instance?.ussd(ussdRequest, this.country!!.currency, object : Klasha.USSDCallback{
             override fun success(response: Response<USSDResponse>) {
@@ -281,6 +293,14 @@ object KlashaSDK {
     }
 
     fun baePay(charge: Charge, transactionCallback: BaePayCallback){
+        if (!isInitialized) {
+            transactionCallback.error(
+                weakReferenceActivity.get()!!,
+                "SDK Not Initialized"
+            )
+            return
+        }
+
         val baePayRequest = BaePayRequest(
             charge.amount,
             charge.baePay!!.description,
@@ -289,7 +309,7 @@ object KlashaSDK {
             charge.baePay.bae,
             charge.baePay.phoneNumber?:"",
             charge.baePay.medium.value,
-            charge.email?:"",
+            charge.email,
             charge.baePay.baeEmail!!
         )
         instance?.baePay(baePayRequest, object : Klasha.BaePayCallback{
@@ -343,7 +363,6 @@ object KlashaSDK {
                 transactionCallback.error(weakReferenceActivity.get()!!, message)
 
             }
-
         })
     }
 

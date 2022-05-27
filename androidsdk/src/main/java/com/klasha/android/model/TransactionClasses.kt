@@ -63,7 +63,8 @@ data class USSDResponse(
     val status: String,
     val message: String,
     val data: Data,
-    val meta: Meta
+    val meta: Meta,
+    val error: String?
 ){
     data class Meta(val authorization: Authorization)
 
