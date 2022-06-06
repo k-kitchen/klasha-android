@@ -292,7 +292,7 @@ dependencyResolutionManagement {
 dependencies {
     //...
 
-    implementation '....'
+    implementation 'com.klasha:klasha-android:v1.0.1'
 
     //...
 }
