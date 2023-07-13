@@ -11,7 +11,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 internal object ApiFactory {
-    private const val BASE_URL = "https://ktests.com/"
+    private const val BASE_URL = "https://dev.kcookery.com/"
+        //"https://ktests.com/"
 
     fun createService(context: Context, token: String): ApiService{
 
