@@ -11,13 +11,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        KlashaSDK
-            .initialize(
-                this,
-                "W2mbGtdx5vKCepFaUm2CqdzebaVW9z22shubB4xFbKTR3g4sL72+7qNQYHTUEfs0my1e/hAO1Nkdx9YbXTjUOg==",
-                Country.NIGERIA, //Customer's country
-                Currency.USD //Source currency
-            )
+        KlashaSDK.initialize(
+            this,
+            "GN1gmENvEPXxH6QcjmQgsDbaQAT/HzVYcMq6GG769rF3kFhTJol7Ixb5MhpIGPTyscJWjY29OxUBCHI+Sj+4rg==",
+            Country.NIGERIA, //Customer's country
+            Currency.USD, //Business currency
+            false, //For Dev testing
+        )
 
         val paymentButton = findViewById<Button>(R.id.trigger)
 
@@ -27,23 +27,20 @@ class MainActivity : AppCompatActivity() {
             //testWallet()
             //testMobileMoney()
             //testMpesa()
-            testGetBankCodes()
+            //testGetBankCodes()
         }
     }
 
     private fun testCardPayment() {
+        val testCard = Card(
+            "5531886652142950", 9, 2032, 564
+        )
         val card = Card(
-            "5531886652142950",
-            9,
-            2023,
-            564,
+            "5061041150007629190", 11, 2023, 229
         )
 
         val charge = Charge(
-            1000.0,
-            "test@gmail.com",
-            "testname",
-            card
+            50.0, "dchiaha@gmail.com", "Duke", card
         )
 
         KlashaSDK.chargeCard(charge, object : KlashaSDK.TransactionCallback {
@@ -75,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun testBankTransfer() {
         val charge = Charge(
-            1000.0,
+            100.0,
             "test@gmail.com",
             "testname",
             null,
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun testWallet() {
         val charge = Charge(
-            1000.0,
+            50.0,
             "test@gmail.com",
             "testname",
             null,
@@ -145,12 +142,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun testMobileMoney() {
         val mobileMoney = MobileMoney(
-            "voucher",
-            Network.MTN
+            "voucher", Network.MTN
         )
 
         val charge = Charge(
-            1000.0,
+            100.0,
             "test@gmail.com",
             "testname",
             null,
@@ -226,8 +222,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun success(
-                ctx: Activity,
-                bankTransferResponse: ArrayList<BankCodeResponse>
+                ctx: Activity, bankTransferResponse: ArrayList<BankCodeResponse>
             ) {}
 
             override fun error(ctx: Activity, message: String) {

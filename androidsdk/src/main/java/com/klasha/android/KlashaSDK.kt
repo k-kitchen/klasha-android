@@ -26,17 +26,18 @@ object KlashaSDK {
     fun initialize(
         activity: Activity,
         authToken: String,
-        country: Country,
-        sourceCurrency: Currency
+        userCountry: Country,
+        businessCurrency: Currency,
+        isDevelopment: Boolean = false,
     ) {
         this.authToken = authToken
         this.weakReferenceActivity = WeakReference<Activity>(activity)
-        this.sourceCurrency = sourceCurrency
-        this.country = country
+        this.sourceCurrency = businessCurrency
+        this.country = userCountry
 
         isInitialized = true
 
-        instance = Klasha(authToken, weakReferenceActivity)
+        instance = Klasha(authToken, weakReferenceActivity, isDevelopment)
     }
 
 
@@ -115,25 +116,17 @@ object KlashaSDK {
             country!!.currency,
             object : Klasha.BankTransferCallback {
                 override fun success(response: Response<BankTransferResponse>) {
-                    if (response.body()?.status?.trim() == "error") {
-                        transactionCallback.error(
-                            weakReferenceActivity.get()!!,
-                            response.body()!!.message
-                        )
-                        return
-                    } else {
-                        val bt = response.body()!!
-                        val btr = BankTransferResp(
-                            bt.txRef,
-                            bt.meta.authorization.transferAccount,
-                            bt.meta.authorization.transferBank,
-                            bt.meta.authorization.accountExpiration,
-                            bt.meta.authorization.transferMode,
-                            bt.meta.authorization.transferAmount,
-                            bt.meta.authorization.mode
-                        )
-                        transactionCallback.success(weakReferenceActivity.get()!!, btr)
-                    }
+                    val bt = response.body()!!
+                    val btr = BankTransferResp(
+                        bt.txRef,
+                        bt.meta.authorization.transferAccount,
+                        bt.meta.authorization.transferBank,
+                        bt.meta.authorization.accountExpiration,
+                        bt.meta.authorization.transferMode,
+                        bt.meta.authorization.transferAmount,
+                        bt.meta.authorization.mode
+                    )
+                    transactionCallback.success(weakReferenceActivity.get()!!, btr)
                 }
 
                 override fun error(message: String) {
@@ -166,24 +159,15 @@ object KlashaSDK {
             country!!.currency,
             object : Klasha.MobileMoneyCallback {
                 override fun success(response: Response<MobileMoneyResponse>) {
-                    if (response.body()?.status?.trim() == "error") {
-                        transactionCallback.error(
-                            weakReferenceActivity.get()!!,
-                            response.body()!!.message
-                        )
-                        return
-                    } else {
-                        transactionCallback.success(
-                            weakReferenceActivity.get()!!,
-                            response.body()!!.txRef
-                        )
-                    }
+                    transactionCallback.success(
+                        weakReferenceActivity.get()!!,
+                        response.body()!!.txRef
+                    )
                 }
 
                 override fun error(message: String) {
                     transactionCallback.error(weakReferenceActivity.get()!!, message)
                 }
-
             })
     }
 
@@ -209,18 +193,10 @@ object KlashaSDK {
         )
         instance?.mpesa(mpesaRequest, country!!.currency, object : Klasha.MPESACallback {
             override fun success(response: Response<MPESAResponse>) {
-                if (response.body()?.status?.trim() == "error") {
-                    transactionCallback.error(
-                        weakReferenceActivity.get()!!,
-                        response.body()!!.message
-                    )
-                    return
-                } else {
-                    transactionCallback.success(
-                        weakReferenceActivity.get()!!,
-                        response.body()!!.txRef
-                    )
-                }
+                transactionCallback.success(
+                    weakReferenceActivity.get()!!,
+                    response.body()!!.txRef
+                )
             }
 
             override fun error(message: String) {
@@ -362,35 +338,26 @@ object KlashaSDK {
         sendCardRequest: SendCardPaymentRequest,
         transactionCallback: TransactionCallback
     ) {
-        instance?.sendCardPayment(email, sendCardRequest, country!!.currency, object :
+        instance?.sendCardPayment(sendCardRequest, country!!.currency, object :
             Klasha.SendCardPaymentCallback {
             override fun success(response: Response<SendCardPaymentResponse>) {
-                if (response.isSuccessful) {
-                    if (response.body()?.status?.trim() == "error") {
+                getPin(email) { pin ->
+                    if (pin.isEmpty() || pin.length < 4) {
                         transactionCallback.error(
                             weakReferenceActivity.get()!!,
-                            response.body()!!.message
+                            Error.INVALID_CARD_PIN.name
                         )
-                        return
-                    }
-                    getPin(email) { pin ->
-                        if (pin.isEmpty() || pin.length < 4) {
-                            transactionCallback.error(
-                                weakReferenceActivity.get()!!,
-                                Error.INVALID_CARD_PIN.name
-                            )
-                            return@getPin
-                        } else {
-                            val chargeCardRequest = ChargeCardRequest(
-                                response.body()!!.data.meta.authorization.mode,
-                                pin, response.body()!!.txRef
-                            )
-                            chargeCard(
-                                email,
-                                chargeCardRequest,
-                                transactionCallback
-                            )
-                        }
+                        return@getPin
+                    } else {
+                        val chargeCardRequest = ChargeCardRequest(
+                            response.body()!!.data.meta.authorization.mode,
+                            pin, response.body()!!.txRef
+                        )
+                        chargeCard(
+                            email,
+                            chargeCardRequest,
+                            transactionCallback
+                        )
                     }
                 }
             }
@@ -410,34 +377,26 @@ object KlashaSDK {
         instance?.chargeCard(chargeCardRequest, country!!.currency, object :
             Klasha.ChargeCardCallback {
             override fun success(response: Response<ChargeCardResponse>) {
-                if (response.isSuccessful) {
-                    if (response.body()!!.status.trim() == "error") {
+                getOtp(email, response.body()!!.message) { otp ->
+                    if (otp.isEmpty() || otp.length < 4) {
                         transactionCallback.error(
                             weakReferenceActivity.get()!!,
-                            response.body()!!.message
+                            Error.INVALID_OTP.name
                         )
-                        return
-                    }
-                    getOtp(email, response.body()!!.message) { otp ->
-                        if (otp.isEmpty() || otp.length < 4) {
-                            transactionCallback.error(
-                                weakReferenceActivity.get()!!,
-                                Error.INVALID_OTP.name
-                            )
-                            return@getOtp
-                        } else {
-                            val validatePaymentRequest = ValidatePaymentRequest(
-                                otp,
-                                response.body()!!.flwRef,
-                                PaymentType.card
-                            )
-                            validatePayment(
-                                validatePaymentRequest,
-                                transactionCallback
-                            )
-                        }
+                        return@getOtp
+                    } else {
+                        val validatePaymentRequest = ValidatePaymentRequest(
+                            otp,
+                            response.body()!!.flwRef,
+                            PaymentType.card
+                        )
+                        validatePayment(
+                            validatePaymentRequest,
+                            transactionCallback
+                        )
                     }
                 }
+
             }
 
             override fun error(message: String) {
@@ -466,7 +425,6 @@ object KlashaSDK {
 
                 override fun error(message: String) {
                     transactionCallback.error(weakReferenceActivity.get()!!, message)
-
                 }
             })
     }
@@ -481,22 +439,15 @@ object KlashaSDK {
             object :
                 Klasha.WalletLoginCallback {
                 override fun success(response: Response<WalletLoginResponse>) {
-                    if (response.isSuccessful) {
-                        val amount = charge.amount
-                        val sourceAmount = amount / rate
-                        val walletPaymentRequest = MakeWalletPaymentRequest(
-                            country!!.currency, charge.amount,
-                            rate, sourceCurrency!!, sourceAmount,
-                            charge.phone, charge.fullName,
-                            charge.transactionReference, response.body()!!.email
-                        )
-                        walletPayment(walletPaymentRequest, transactionCallback)
-                    } else {
-                        transactionCallback.error(
-                            weakReferenceActivity.get()!!,
-                            response.body()!!.error
-                        )
-                    }
+                    val amount = charge.amount
+                    val sourceAmount = amount / rate
+                    val walletPaymentRequest = MakeWalletPaymentRequest(
+                        country!!.currency, charge.amount,
+                        rate, sourceCurrency!!, sourceAmount,
+                        charge.phone, charge.fullName,
+                        charge.transactionReference, response.body()!!.email
+                    )
+                    walletPayment(walletPaymentRequest, transactionCallback)
                 }
 
                 override fun error(message: String) {

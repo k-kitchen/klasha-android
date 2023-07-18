@@ -18,7 +18,8 @@ KlashaSDK
         WeakReference(activity),
         KLASHA_AUTH_TOKEN,
         Country.NIGERIA, //Customer's country
-        Currency.GHS //Source currency
+        Currency.USD, //Business currency
+        false, //For Dev testing
     )
 ```
 
