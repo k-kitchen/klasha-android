@@ -11,16 +11,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 internal object ApiFactory {
-    private const val BASE_URL = "https://ktests.com/"
-
-    fun createService(context: Context, token: String): ApiService{
+    fun createService(context: Context, baseUrl: String, token: String): ApiService {
 
         val gson = GsonBuilder().setLenient().create()
-        val httpLoggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(NetworkInterceptor(context))
-            .addInterceptor {chain ->
+            .addInterceptor { chain ->
                 val inComing = chain.request()
                 val outGoing = inComing.newBuilder()
                     .header("x-auth-token", token)
@@ -34,8 +33,8 @@ internal object ApiFactory {
             .writeTimeout(1, TimeUnit.MINUTES)
             .build()
 
-        val retrofit= Retrofit.Builder()
-            .baseUrl(BASE_URL)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

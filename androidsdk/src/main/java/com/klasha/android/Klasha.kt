@@ -8,6 +8,7 @@ import com.klasha.android.model.USSDResponse
 import com.klasha.android.model.request.*
 import com.klasha.android.model.response.*
 import com.klasha.android.service.ApiFactory
+import com.klasha.android.service.ApiService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
@@ -19,21 +20,25 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLHandshakeException
 
 internal class Klasha(
-    private val authToken: String,
-    private val weakReferenceActivity: WeakReference<Activity>
+    authToken: String,
+    weakReferenceActivity: WeakReference<Activity>,
+    isDevelopment: Boolean,
 ) {
+    private val baseUrl: String =
+        if (isDevelopment) "https://dev.kcookery.com/" else "https://gate.klasapps.com/"
+    private val service: ApiService =
+        ApiFactory.createService(weakReferenceActivity.get()!!, baseUrl, authToken)
 
     fun getExchange(exchangeRequest: ExchangeRequest, exchangeCallBack: ExchangeCallback) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .exchangeMoney(exchangeRequest)
+        service.exchangeMoney(exchangeRequest)
             .enqueue(object : Callback<ExchangeResponse> {
                 override fun onResponse(
                     call: Call<ExchangeResponse>,
                     response: Response<ExchangeResponse>
                 ) {
-                    if (response.isSuccessful && response.body() != null){
+                    if (response.isSuccessful && response.body() != null) {
                         exchangeCallBack.success(response)
-                    }else{
+                    } else {
                         exchangeCallBack.error(Error.BAD_EXCHANGE_REQUEST.name)
                     }
                 }
@@ -50,17 +55,18 @@ internal class Klasha(
         destinationCurrency: Currency,
         validatePaymentCallback: ValidatePaymentCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .validatePayment(validatePaymentRequest, destinationCurrency)
+        service.validatePayment(validatePaymentRequest, destinationCurrency)
             .enqueue(object : Callback<ValidatePaymentResponse> {
                 override fun onResponse(
                     call: Call<ValidatePaymentResponse>,
                     response: Response<ValidatePaymentResponse>
                 ) {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful && response.body()?.status?.trim() == "successful") {
                         validatePaymentCallback.success(response)
-                    }else{
-                        validatePaymentCallback.error(Error.BAD_REQUEST.name)
+                    } else {
+                        validatePaymentCallback.error(
+                            response.body()?.processorResponse ?: Error.BAD_REQUEST.name
+                        )
                     }
                 }
 
@@ -73,22 +79,22 @@ internal class Klasha(
     }
 
     fun sendCardPayment(
-        email: String,
         sendCardPaymentRequest: SendCardPaymentRequest,
         destinationCurrency: Currency,
         sendCardPaymentCallback: SendCardPaymentCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .sendCardPayment(sendCardPaymentRequest, destinationCurrency)
+        service.sendCardPayment(sendCardPaymentRequest, destinationCurrency)
             .enqueue(object : Callback<SendCardPaymentResponse> {
                 override fun onResponse(
                     call: Call<SendCardPaymentResponse>,
                     response: Response<SendCardPaymentResponse>
                 ) {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful && response.body()?.data?.status?.trim() == "success") {
                         sendCardPaymentCallback.success(response)
-                    }else{
-                        sendCardPaymentCallback.error(Error.BAD_REQUEST.name)
+                    } else {
+                        sendCardPaymentCallback.error(
+                            response.body()?.message ?: Error.BAD_REQUEST.name
+                        )
                     }
                 }
 
@@ -105,17 +111,16 @@ internal class Klasha(
         destinationCurrency: Currency,
         chargeCardCallback: ChargeCardCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .chargeCard(chargeCardRequest, destinationCurrency)
+        service.chargeCard(chargeCardRequest, destinationCurrency)
             .enqueue(object : Callback<ChargeCardResponse> {
                 override fun onResponse(
                     call: Call<ChargeCardResponse>,
                     response: Response<ChargeCardResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful && response.body()?.status?.trim() != "error") {
                         chargeCardCallback.success(response)
-                    }else{
-                        chargeCardCallback.error(Error.BAD_REQUEST.name)
+                    } else {
+                        chargeCardCallback.error(response.body()?.message ?: Error.BAD_REQUEST.name)
                     }
                 }
 
@@ -131,17 +136,18 @@ internal class Klasha(
         destinationCurrency: Currency,
         bankTransferCallback: BankTransferCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .bankTransfer(bankTransferRequest, destinationCurrency)
+        service.bankTransfer(bankTransferRequest, destinationCurrency)
             .enqueue(object : Callback<BankTransferResponse> {
                 override fun onResponse(
                     call: Call<BankTransferResponse>,
                     response: Response<BankTransferResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful && response.body()?.status?.trim() == "success") {
                         bankTransferCallback.success(response)
-                    }else{
-                        bankTransferCallback.error(Error.BAD_REQUEST.name)
+                    } else {
+                        bankTransferCallback.error(
+                            response.body()?.message ?: Error.BAD_REQUEST.name
+                        )
                     }
                 }
 
@@ -158,17 +164,18 @@ internal class Klasha(
         destinationCurrency: Currency,
         mobileMoneyCallback: MobileMoneyCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .mobileMoney(mobileMoneyRequest, destinationCurrency)
+        service.mobileMoney(mobileMoneyRequest, destinationCurrency)
             .enqueue(object : Callback<MobileMoneyResponse> {
                 override fun onResponse(
                     call: Call<MobileMoneyResponse>,
                     response: Response<MobileMoneyResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful && response.body()?.status?.trim() != "error") {
                         mobileMoneyCallback.success(response)
-                    }else{
-                        mobileMoneyCallback.error(Error.TRANSACTION_NOT_SUPPORTED.name)
+                    } else {
+                        mobileMoneyCallback.error(
+                            response.body()?.message ?: Error.TRANSACTION_NOT_SUPPORTED.name
+                        )
                     }
                 }
 
@@ -184,17 +191,16 @@ internal class Klasha(
         destinationCurrency: Currency,
         mpesaCallback: MPESACallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .mpesa(mpesaRequest, destinationCurrency)
+        service.mpesa(mpesaRequest, destinationCurrency)
             .enqueue(object : Callback<MPESAResponse> {
                 override fun onResponse(
                     call: Call<MPESAResponse>,
                     response: Response<MPESAResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful && response.body()?.status?.trim() != "error") {
                         mpesaCallback.success(response)
-                    }else{
-                        mpesaCallback.error(Error.BAD_REQUEST.name)
+                    } else {
+                        mpesaCallback.error(response.body()?.message ?: Error.BAD_REQUEST.name)
                     }
                 }
 
@@ -210,17 +216,18 @@ internal class Klasha(
         walletLoginRequest: WalletLoginRequest,
         walletLoginCallback: WalletLoginCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .walletLogin(walletLoginRequest)
+        service.walletLogin(walletLoginRequest)
             .enqueue(object : Callback<WalletLoginResponse> {
                 override fun onResponse(
                     call: Call<WalletLoginResponse>,
                     response: Response<WalletLoginResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         walletLoginCallback.success(response)
-                    }else{
-                        walletLoginCallback.error(Error.INVALID_CREDENTIALS.name)
+                    } else {
+                        walletLoginCallback.error(
+                            response.body()?.error ?: Error.INVALID_CREDENTIALS.name
+                        )
                     }
                 }
 
@@ -236,16 +243,15 @@ internal class Klasha(
         walletPaymentRequest: MakeWalletPaymentRequest,
         walletPaymentCallback: WalletPaymentCallback
     ) {
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .walletPayment(walletPaymentRequest)
+        service.walletPayment(walletPaymentRequest)
             .enqueue(object : Callback<MakeWalletPaymentResponse> {
                 override fun onResponse(
                     call: Call<MakeWalletPaymentResponse>,
                     response: Response<MakeWalletPaymentResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         walletPaymentCallback.success(response)
-                    }else{
+                    } else {
                         walletPaymentCallback.error(Error.INVALID_CREDENTIALS.name)
                     }
                 }
@@ -258,17 +264,16 @@ internal class Klasha(
             })
     }
 
-    fun ussd(ussdRequest: USSDRequest,destinationCurrency: Currency, ussdCallback: USSDCallback){
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .ussd(ussdRequest, destinationCurrency)
-            .enqueue(object: Callback<USSDResponse>{
+    fun ussd(ussdRequest: USSDRequest, destinationCurrency: Currency, ussdCallback: USSDCallback) {
+        service.ussd(ussdRequest, destinationCurrency)
+            .enqueue(object : Callback<USSDResponse> {
                 override fun onResponse(
                     call: Call<USSDResponse>,
                     response: Response<USSDResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         ussdCallback.success(response)
-                    }else{
+                    } else {
                         ussdCallback.error(Error.SERVER_ERROR.name)
                     }
                 }
@@ -280,17 +285,16 @@ internal class Klasha(
             })
     }
 
-    fun baePay(baePayRequest: BaePayRequest, baePayCallback: BaePayCallback){
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .baePay(baePayRequest)
-            .enqueue(object: Callback<BaePayResponse>{
+    fun baePay(baePayRequest: BaePayRequest, baePayCallback: BaePayCallback) {
+        service.baePay(baePayRequest)
+            .enqueue(object : Callback<BaePayResponse> {
                 override fun onResponse(
                     call: Call<BaePayResponse>,
                     response: Response<BaePayResponse>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         baePayCallback.success(response)
-                    }else{
+                    } else {
                         baePayCallback.error(Error.SERVER_ERROR.name)
                     }
                 }
@@ -302,17 +306,16 @@ internal class Klasha(
             })
     }
 
-    fun getBankCodes(bankCodeCallback: BankCodeCallback){
-        ApiFactory.createService(weakReferenceActivity.get()!!, authToken)
-            .getBankCodes()
-            .enqueue(object: Callback<ArrayList<BankCodeResponse>>{
+    fun getBankCodes(bankCodeCallback: BankCodeCallback) {
+        service.getBankCodes()
+            .enqueue(object : Callback<ArrayList<BankCodeResponse>> {
                 override fun onResponse(
                     call: Call<ArrayList<BankCodeResponse>>,
                     response: Response<ArrayList<BankCodeResponse>>
                 ) {
-                    if (response.isSuccessful){
+                    if (response.isSuccessful) {
                         bankCodeCallback.success(response)
-                    }else{
+                    } else {
                         bankCodeCallback.error(Error.SERVER_ERROR.name)
                     }
                 }
@@ -354,51 +357,51 @@ internal class Klasha(
         fun error(message: String)
     }
 
-    interface ExchangeCallback: SDKCallback {
+    interface ExchangeCallback : SDKCallback {
         fun success(response: Response<ExchangeResponse>)
     }
 
-    interface SendCardPaymentCallback: SDKCallback {
+    interface SendCardPaymentCallback : SDKCallback {
         fun success(response: Response<SendCardPaymentResponse>)
     }
 
-    interface ChargeCardCallback: SDKCallback {
+    interface ChargeCardCallback : SDKCallback {
         fun success(response: Response<ChargeCardResponse>)
     }
 
-    interface ValidatePaymentCallback: SDKCallback {
+    interface ValidatePaymentCallback : SDKCallback {
         fun success(response: Response<ValidatePaymentResponse>)
     }
 
-    interface BankTransferCallback: SDKCallback {
+    interface BankTransferCallback : SDKCallback {
         fun success(response: Response<BankTransferResponse>)
     }
 
-    interface MobileMoneyCallback: SDKCallback {
+    interface MobileMoneyCallback : SDKCallback {
         fun success(response: Response<MobileMoneyResponse>)
     }
 
-    interface MPESACallback: SDKCallback {
+    interface MPESACallback : SDKCallback {
         fun success(response: Response<MPESAResponse>)
     }
 
-    interface WalletLoginCallback: SDKCallback {
+    interface WalletLoginCallback : SDKCallback {
         fun success(response: Response<WalletLoginResponse>)
     }
 
-    interface WalletPaymentCallback: SDKCallback {
+    interface WalletPaymentCallback : SDKCallback {
         fun success(response: Response<MakeWalletPaymentResponse>)
     }
 
-    interface BankCodeCallback: SDKCallback {
+    interface BankCodeCallback : SDKCallback {
         fun success(response: Response<ArrayList<BankCodeResponse>>)
     }
 
-    interface USSDCallback: SDKCallback {
+    interface USSDCallback : SDKCallback {
         fun success(response: Response<USSDResponse>)
     }
 
-    interface BaePayCallback: SDKCallback {
+    interface BaePayCallback : SDKCallback {
         fun success(response: Response<BaePayResponse>)
     }
 }

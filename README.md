@@ -8,6 +8,36 @@ The Klasha Android SDK Supports 5 payments methods out of the box, they are same
 - MPESA
 - Klasha wallet
 
+### Importing the library
+
+1. Add https://jitpack.io to settings.gradle file
+
+```Gradle
+
+dependencyResolutionManagement {
+    repositories {
+        //....
+        //....
+        maven { url "https://jitpack.io" }
+    }
+}
+
+```
+
+2. Add the latest version of the library to the dependency section of your app
+
+```Gradle
+
+dependencies {
+    //...
+
+    implementation 'com.github.klasha-apps:klasha-android:v1.0.2'
+
+    //...
+}
+
+```
+
 To start using the SDK you would need your x-auth-token.
 
 #### Step 1: Initialize the SDK
@@ -18,7 +48,8 @@ KlashaSDK
         WeakReference(activity),
         KLASHA_AUTH_TOKEN,
         Country.NIGERIA, //Customer's country
-        Currency.GHS //Source currency
+        Currency.USD, //Business currency
+        false, //For Dev testing
     )
 ```
 
@@ -71,8 +102,7 @@ val charge = Charge(
     amount,
     email,
     name,
-    null
-    null
+    null,
 )
 
 KlashaSDK.bankTransfer(charge, object : KlashaSDK.BankTransferTransactionCallback{
@@ -106,8 +136,7 @@ val charge = Charge(
     amount,
     email,
     name,
-    null
-    null
+    null,
 )
 
 KlashaSDK.wallet(charge, object : KlashaSDK.TransactionCallback {
@@ -147,13 +176,20 @@ val charge = Charge(
     email,
     name,
     null,
-    null,
     mobileMoney
 )
 
 KlashaSDK.mobileMoney(charge, object : KlashaSDK.TransactionCallback{
-    override fun error(ctx: Activity, message: String) {
+    override fun transactionInitiated(transactionReference: String) {
         // Implementation when transaction is initiated
+    }
+    
+    override fun error(ctx: Activity, message: String) {
+        // Implementation when transaction fails
+        ctx.runOnUiThread {
+            // UI code goes here
+        }
+        // Non UI code can be here
     }
 
     override fun success(ctx: Activity, transactionReference: String) {
@@ -163,15 +199,6 @@ KlashaSDK.mobileMoney(charge, object : KlashaSDK.TransactionCallback{
         }
         // Non UI code can be here
     }
-
-    override fun transactionInitiated(transactionReference: String) {
-        // Implementation when transaction fails
-        ctx.runOnUiThread {
-            // UI code goes here
-        }
-        // Non UI code can be here
-    }
-
 })
 
 ```
@@ -184,11 +211,21 @@ val charge = Charge(
     email,
     name,
     null,
+    phone
 )
 
 KlashaSDK.mpesa(charge, object : KlashaSDK.TransactionCallback{
-    override fun error(ctx: Activity, message: String) {
+    override fun transactionInitiated(transactionReference: String) {
         // Implementation when transaction is initiated
+
+    }
+    
+    override fun error(ctx: Activity, message: String) {
+        // Implementation when transaction fails
+        ctx.runOnUiThread {
+            // UI code goes here
+        }
+        // Non UI code can be here
     }
 
     override fun success(ctx: Activity, transactionReference: String) {
@@ -198,15 +235,6 @@ KlashaSDK.mpesa(charge, object : KlashaSDK.TransactionCallback{
         }
         // Non UI code can be here
     }
-
-    override fun transactionInitiated(transactionReference: String) {
-        // Implementation when transaction fails
-        ctx.runOnUiThread {
-            // UI code goes here
-        }
-        // Non UI code can be here
-    }
-
 })
 
 ```
@@ -225,24 +253,24 @@ val charge = Charge(
 )
 
 KlashaSDK.ussd(charge, object : KlashaSDK.USSDCallback{
+    override fun transactionInitiated(transactionReference: String) {
+        // Implementation when transaction is initiated
+    }
+    
     override fun success(ctx: Activity, ussdResponse: USSDResponse) {
-        // Implementation when transaction fails
+        // Implementation when transaction is successful
         ctx.runOnUiThread {
             // UI code goes here
         }
         // Non UI code can be here    
     }
 
-    override fun transactionInitiated(transactionReference: String) {
+    override fun error(ctx: Activity, message: String) {
         // Implementation when transaction fails
         ctx.runOnUiThread {
             // UI code goes here
         }
         // Non UI code can be here 
-    }
-
-    override fun error(ctx: Activity, message: String) {
-        // Implementation when transaction is initiated
     }
 })
 
@@ -251,6 +279,10 @@ KlashaSDK.ussd(charge, object : KlashaSDK.USSDCallback{
 #### Getting bank Codes
 ```kotlin
 KlashaSDK.getBankCodes(object : KlashaSDK.BankCodeCallback{
+    override fun transactionInitiated(transactionReference: String) {
+        // Implementation
+    }
+    
     override fun success(
         ctx: Activity,
         bankTransferResponse: ArrayList<BankCodeResponse>
@@ -258,45 +290,10 @@ KlashaSDK.getBankCodes(object : KlashaSDK.BankCodeCallback{
         // Implementation
     }
 
-    override fun transactionInitiated(transactionReference: String) {
-        // Implementation
-    }
-
     override fun error(ctx: Activity, message: String) {
         // Implementation
     }
-
 })
-```
-
-### Importing the library
-
-1. Add https://jitpack.io to settings.gradle file
-
-```Gradle
-
-dependencyResolutionManagement {
-    repositories {
-        //....
-        //....
-        maven { url "https://jitpack.io" }
-    }
-}
-
-```
-
-2. Add the latest version of the library to the dependency section of your app
-
-```Gradle
-
-dependencies {
-    //...
-
-    implementation 'com.klasha:klasha-android:v1.0.1'
-
-    //...
-}
-
 ```
 
 ## Handing errors
