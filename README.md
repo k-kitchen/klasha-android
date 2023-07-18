@@ -8,6 +8,36 @@ The Klasha Android SDK Supports 5 payments methods out of the box, they are same
 - MPESA
 - Klasha wallet
 
+### Importing the library
+
+1. Add https://jitpack.io to settings.gradle file
+
+```Gradle
+
+dependencyResolutionManagement {
+    repositories {
+        //....
+        //....
+        maven { url "https://jitpack.io" }
+    }
+}
+
+```
+
+2. Add the latest version of the library to the dependency section of your app
+
+```Gradle
+
+dependencies {
+    //...
+
+    implementation 'com.github.klasha-apps:klasha-android:v1.0.2'
+
+    //...
+}
+
+```
+
 To start using the SDK you would need your x-auth-token.
 
 #### Step 1: Initialize the SDK
@@ -264,36 +294,6 @@ KlashaSDK.getBankCodes(object : KlashaSDK.BankCodeCallback{
         // Implementation
     }
 })
-```
-
-### Importing the library
-
-1. Add https://jitpack.io to settings.gradle file
-
-```Gradle
-
-dependencyResolutionManagement {
-    repositories {
-        //....
-        //....
-        maven { url "https://jitpack.io" }
-    }
-}
-
-```
-
-2. Add the latest version of the library to the dependency section of your app
-
-```Gradle
-
-dependencies {
-    //...
-
-    implementation 'com.github.klasha-apps:klasha-android:v1.0.1'
-
-    //...
-}
-
 ```
 
 ## Handing errors
